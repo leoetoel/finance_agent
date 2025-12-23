@@ -3,7 +3,7 @@ from typing import Dict, Any
 from langchain_openai import ChatOpenAI  # DeepSeek兼容OpenAI接口，无需新增依赖
 from tradingagents.dataflows.interface import route_to_vendor
 from tradingagents.dataflows.config import get_config
-from .utils.indicators import calculate_technical_indicators
+from ..utils.indicators import calculate_technical_indicators
 
 # 初始化配置
 CONFIG = get_config()

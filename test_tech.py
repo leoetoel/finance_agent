@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 # 导入核心模块
 from tradingagents.dataflows.config import set_config, get_config
 from tradingagents.dataflows.interface import route_to_vendor
-from tradingagents.agents.tech_analyst import get_technical_analysis
+from tradingagents.agents.analysts.tech_analyst import get_technical_analysis
 from tradingagents.agents.utils.indicators import (
     calculate_rsi, calculate_macd, calculate_bollinger_bands
 )

@@ -1,7 +1,11 @@
 # test_finhub.py
+import sys
+import os
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(PROJECT_ROOT)
 """测试Finhub API调用功能"""
-from dataflows.interface import route_to_vendor
-from dataflows.config import set_config
+from tradingagents.dataflows.interface import route_to_vendor  
+from tradingagents.dataflows.config import set_config
 
 # 1. 配置真实密钥（替换为你的Finhub密钥）
 CUSTOM_CONFIG = {
