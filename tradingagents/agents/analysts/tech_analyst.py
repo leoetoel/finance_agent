@@ -1,20 +1,19 @@
 # tradingagents/agents/technical_analyst.py
 from typing import Dict, Any
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI  # DeepSeek兼容OpenAI接口，无需新增依赖
 from tradingagents.dataflows.interface import route_to_vendor
 from tradingagents.dataflows.config import get_config
 from .utils.indicators import calculate_technical_indicators
 
-# 初始化配置和LLM
+# 初始化配置
 CONFIG = get_config()
-LLM_MODEL = CONFIG.get("deep_think_llm", "gpt-4o")
-LLM_API_KEY = CONFIG.get("OPENAI_API_KEY")
 
-# 初始化LLM客户端（支持OpenAI/Anthropic等，这里以OpenAI为例）
+# ========== 替换为DeepSeek LLM初始化 ==========
 llm = ChatOpenAI(
-    model=LLM_MODEL,
-    api_key=LLM_API_KEY,
-    temperature=0.1  # 低随机性，保证分析严谨
+    model=CONFIG.get("llm_model", "deepseek-chat"),  # DeepSeek模型名
+    api_key=CONFIG.get("deepseek_api_key"),          # DeepSeek API Key
+    base_url=CONFIG.get("deepseek_base_url", "https://api.deepseek.com/v1"),  # DeepSeek API地址
+    temperature=CONFIG.get("llm_temperature", 0.1)   # 随机性配置
 )
 
 def get_technical_analysis(stock_code: str) -> Dict[str, Any]:
@@ -32,7 +31,7 @@ def get_technical_analysis(stock_code: str) -> Dict[str, Any]:
     print(f"📈 技术分析师Agent：计算{stock_code}的技术指标...")
     indicators = calculate_technical_indicators(stock_data, ohlc_data)
     
-    # Step 3: 构建LLM提示词（核心：明确分析师角色+输入数据+输出要求）
+    # Step 3: 构建LLM提示词（保留原有逻辑，DeepSeek兼容相同提示词）
     prompt = f"""
     你是一名资深金融技术分析师，擅长基于技术指标和市场数据做出专业、严谨的分析。
     请基于以下信息，为股票{stock_code}撰写一份详细的技术分析报告：
@@ -58,19 +57,19 @@ def get_technical_analysis(stock_code: str) -> Dict[str, Any]:
     5. 格式要求：分点清晰，语言专业但易懂，总字数控制在500字以内。
     """
     
-    # Step 4: 调用LLM生成分析报告
-    print(f"🤖 技术分析师Agent：调用LLM生成分析报告...")
+    # Step 4: 调用DeepSeek LLM生成分析报告（逻辑不变，接口兼容）
+    print(f"🤖 技术分析师Agent：调用DeepSeek生成分析报告...")
     response = llm.invoke(prompt)
     analysis_report = response.content.strip()
     
-    # Step 5: 整合结构化结果
+    # Step 5: 整合结构化结果（保留原有逻辑）
     final_result = {
         "stock_code": stock_code,
         "basic_data": stock_data,
         "technical_indicators": indicators,
         "analysis_report": analysis_report,
-        "source": stock_data["source"],  # 标记数据来源（Finhub/Yfinance）
-        "timestamp": stock_data.get("timestamp")  # 数据时间戳
+        "source": stock_data["source"],
+        "timestamp": stock_data.get("timestamp")
     }
     
     return final_result

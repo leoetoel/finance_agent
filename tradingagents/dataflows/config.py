@@ -1,6 +1,11 @@
 # tradingagents/dataflows/config.py
 """配置读取工具：全局唯一配置，支持动态覆盖"""
 from typing import Dict, Any
+import os
+from dotenv import load_dotenv
+
+# 加载.env文件（核心！没有这行则.env不生效）
+load_dotenv()
 
 try:
     # Support running as an installed package.
