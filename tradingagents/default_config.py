@@ -12,7 +12,8 @@ DEFAULT_CONFIG = {
     "data_vendors": {
         "core_stock_apis": "finhub,yfinance,alpha_vantage",
         "news_data": "alpha_vantage,openai",
-        "technical_indicators": "yfinance,alpha_vantage"
+        "technical_indicators": "yfinance,alpha_vantage",
+        "fundamental_data": "finhub"
     },
     
     # 方法级数据源优先级（可选）

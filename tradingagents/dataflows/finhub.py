@@ -133,3 +133,65 @@ def get_finhub_ohlc_data(
 
     except Exception as e:
         raise RuntimeError(f"Finhub K线数据获取失败：{str(e)}") from e
+    
+
+
+def get_market_data(stock_code: str) -> Dict:
+    """获取市场数据（无common依赖）"""
+    if not FINHUB_API_KEY:
+        raise Exception("Finhub API密钥未配置")
+    
+    try:
+        # 1. 基础行情
+        quote_url = f"{FINHUB_BASE_URL}/quote?symbol={stock_code}&token={FINHUB_API_KEY}"
+        # 2. 公司信息（市值）
+        profile_url = f"{FINHUB_BASE_URL}/stock/profile2?symbol={stock_code}&token={FINHUB_API_KEY}"
+        # 3. 估值指标
+        metric_url = f"{FINHUB_BASE_URL}/stock/metric?symbol={stock_code}&metric=all&token={FINHUB_API_KEY}"
+
+        quote_resp = requests.get(quote_url, timeout=10).json()
+        profile_resp = requests.get(profile_url, timeout=10).json()
+        metric_resp = requests.get(metric_url, timeout=10).json()
+
+        market_data = {
+            "stock_code": stock_code,
+            "current_price": quote_resp.get("c", 0),
+            "open_price": quote_resp.get("o", 0),
+            "high_price": quote_resp.get("h", 0),
+            "low_price": quote_resp.get("l", 0),
+            "market_cap": profile_resp.get("marketCapitalization", 0),
+            "pe_ratio": metric_resp.get("metric", {}).get("peBasic", 0),
+            "pb_ratio": metric_resp.get("metric", {}).get("pb", 0),
+            "source": "finhub",
+            "timestamp": quote_resp.get("t", 0)
+        }
+        print("✅ 成功获取finhub市场数据！")
+        return market_data
+    except Exception as e:
+        raise Exception(f"Finhub市场数据获取失败：{str(e)}")
+
+
+def get_financial_data(stock_code: str) -> Dict:
+    """获取财务数据（无common依赖）"""
+    if not FINHUB_API_KEY:
+        raise Exception("Finhub API密钥未配置")
+    
+    try:
+        metric_url = f"{FINHUB_BASE_URL}/stock/metric?symbol={stock_code}&metric=all&token={FINHUB_API_KEY}"
+        resp = requests.get(metric_url, timeout=10).json()
+        metric = resp.get("metric", {})
+
+        financial_data = {
+            "stock_code": stock_code,
+            "total_revenue": metric.get("revenue", 0),
+            "net_profit": metric.get("netIncome", 0),
+            "revenue_growth_yoy": metric.get("revenueGrowthYoY", 0),
+            "profit_growth_yoy": metric.get("netIncomeGrowthYoY", 0),
+            "roe": metric.get("roe", 0),
+            "debt_to_equity": metric.get("debtToEquity", 0),
+            "source": "finhub"
+        }
+        print("✅ 成功获取finhub财务数据！")
+        return financial_data
+    except Exception as e:
+        raise Exception(f"Finhub财务数据获取失败：{str(e)}")

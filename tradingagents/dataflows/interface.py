@@ -6,9 +6,12 @@ from .config import get_config
 # 导入各数据源实现（按需扩展）
 from .finhub import get_finhub_realtime_data, get_finhub_ohlc_data
 from .y_finance import get_yfinance_ohlc_data
-# 以下为兼容原有框架的示例（若不需要yfinance/AlphaVantage可注释）
-# from .y_finance import get_yfinance_stock_data, get_yfinance_ohlc_data
-# from .alpha_vantage import get_alpha_vantage_stock_data, get_alpha_vantage_ohlc_data
+from tradingagents.dataflows.finhub import (
+    get_finhub_realtime_data,  # 原有：实时行情
+    get_finhub_ohlc_data,      # 原有：K线数据
+    get_market_data,    # 新增：市场估值数据（PE/PB/市值）
+    get_financial_data  # 新增：财务数据（营收/利润/ROE）
+)
 
 # 核心映射表：{统一方法名: {数据源名: 实现函数}}
 VENDOR_METHODS: Dict[str, Dict[str, Callable]] = {
@@ -23,13 +26,24 @@ VENDOR_METHODS: Dict[str, Dict[str, Callable]] = {
         "finhub": get_finhub_ohlc_data,
         "yfinance": get_yfinance_ohlc_data,
         # "alpha_vantage": get_alpha_vantage_ohlc_data
+    },
+    # 市场估值数据（PE/PB/市值）
+    "get_market_data": {
+        "finhub": get_market_data,  # Finhub实现
+        
+    },
+    # 财务数据（营收/利润/ROE）
+    "get_financial_data": {
+        "finhub": get_financial_data,  # Finhub实现
+        
     }
 }
 
 # 数据源分类映射（用于优先级配置）
 TOOL_CATEGORIES = {
     "core_stock_apis": ["get_stock_data"],
-    "technical_indicators": ["get_ohlc_data"]
+    "technical_indicators": ["get_ohlc_data"],
+    "fundamental_data": ["get_market_data", "get_financial_data"],
 }
 
 def get_category_for_method(method_name: str) -> str:
